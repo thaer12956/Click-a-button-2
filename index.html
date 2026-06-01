@@ -48,9 +48,9 @@
             document.getElementById("score").innerText = punkte;
             document.body.style.backgroundColor = '#' + Math.floor(Math.random()*16777215).toString(16);
             
-            // OXPLOSION bei jedem 5. Klick!
+            // EXPLOSION bei jedem 5. Klick!
             if (punkte % 5 === 0) {
-                document.getElementById("clickMe").style.fontSize = "50px";
+                document.getElementById("clickMe").style.fontSize = "100px";
                 document.getElementById("clickMe").style.backgroundColor = "red";
                 document.getElementById("clickMe").innerText = "BOOM!";
                 setTimeout(() => { 
