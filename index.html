@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <title>ClickAbutton - Pro</title>
     <style>
-        body { text-align: center; font-family: sans-serif; transition: background 0.3s; padding: 20px; }
+        body { text-align: center; font-family: sans-serif; background-color: #f0f0f0; transition: background 0.3s; padding: 20px; }
         .box { background: white; padding: 20px; border-radius: 15px; display: inline-block; box-shadow: 0px 0px 10px rgba(0,0,0,0.2); margin-top: 20px; }
         button { padding: 15px 30px; font-size: 20px; cursor: pointer; border-radius: 10px; border: none; margin: 10px; background-color: #ffcc00; }
         #spielBereich { display: none; }
-        ul { list-style: none; padding: 0; text-align: left; }
+        ul { list-style: none; padding: 0; }
     </style>
 </head>
 <body>
@@ -31,7 +31,7 @@
         <br>
         <div class="box">
             <h2>Bestenliste</h2>
-            <ul id="rangliste">Lade Rangliste...</ul>
+            <ul id="rangliste">Lade Daten...</ul>
         </div>
     </div>
 
@@ -42,7 +42,7 @@
 
         function starteSpiel() {
             username = document.getElementById("username").value;
-            if (username === "") { alert("Name eingeben, Bre!"); return; }
+            if (username === "") { alert("Name eingeben!"); return; }
             document.getElementById("loginBereich").style.display = "none";
             document.getElementById("spielBereich").style.display = "block";
             document.getElementById("begruessung").innerText = "Leg los, " + username + "!";
@@ -53,19 +53,23 @@
             punkte++;
             document.getElementById("score").innerText = punkte;
             document.body.style.backgroundColor = '#' + Math.floor(Math.random()*16777215).toString(16);
-            // Überraschung aktiv!
-            if (punkte % 5 === 0) {
-                document.getElementById("clickMe").style.transform = "scale(1.2)";
-                setTimeout(() => document.getElementById("clickMe").style.transform = "scale(1)", 100);
-            }
         });
 
         function speichereHighscore() {
             fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ "Name": username, "Score": punkte })
-            }).then(() => { alert("Erfolgreich gesendet!"); ladeRangliste(); });
+                body: JSON.stringify({ "NAME": username, "SCORE": punkte })
+            })
+            .then(res => {
+                if(res.ok) { 
+                    alert("Gesendet, Legende!"); 
+                    // Überraschung!
+                    document.body.style.transform = "rotate(360deg)";
+                    document.body.style.transition = "2s";
+                    ladeRangliste(); 
+                } else { alert("Fehler beim Senden!"); }
+            });
         }
 
         function ladeRangliste() {
@@ -74,8 +78,8 @@
             .then(data => {
                 const liste = document.getElementById("rangliste");
                 liste.innerHTML = "";
-                data.sort((a, b) => b.Score - a.Score).slice(0, 5).forEach(r => {
-                    liste.innerHTML += `<li>🏆 ${r.Name}: ${r.Score}</li>`;
+                data.sort((a, b) => b.SCORE - a.SCORE).slice(0, 5).forEach(r => {
+                    liste.innerHTML += `<li>🏆 ${r.NAME}: ${r.SCORE}</li>`;
                 });
             });
         }
