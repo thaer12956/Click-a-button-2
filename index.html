@@ -5,10 +5,10 @@
     <title>ClickAbutton - Pro</title>
     <style>
         body { text-align: center; font-family: sans-serif; transition: background 0.3s; padding: 20px; }
-        #spielBereich { display: none; }
+        .box { background: white; padding: 20px; border-radius: 15px; display: inline-block; box-shadow: 0px 0px 10px rgba(0,0,0,0.2); margin-top: 20px; }
         button { padding: 15px 30px; font-size: 20px; cursor: pointer; border-radius: 10px; border: none; margin: 10px; background-color: #ffcc00; }
-        .box { background: white; padding: 20px; border-radius: 15px; display: inline-block; box-shadow: 0px 0px 10px rgba(0,0,0,0.2); }
-        ul { list-style: none; padding: 0; }
+        #spielBereich { display: none; }
+        ul { list-style: none; padding: 0; text-align: left; }
     </style>
 </head>
 <body>
@@ -28,10 +28,10 @@
             <h2>Punkte: <span id="score">0</span></h2>
             <button onclick="speichereHighscore()">Highscore senden</button>
         </div>
-        <br><br>
+        <br>
         <div class="box">
-            <h2>Rangliste</h2>
-            <ul id="rangliste">Lade Daten...</ul>
+            <h2>Bestenliste</h2>
+            <ul id="rangliste">Lade Rangliste...</ul>
         </div>
     </div>
 
@@ -53,6 +53,11 @@
             punkte++;
             document.getElementById("score").innerText = punkte;
             document.body.style.backgroundColor = '#' + Math.floor(Math.random()*16777215).toString(16);
+            // Überraschung aktiv!
+            if (punkte % 5 === 0) {
+                document.getElementById("clickMe").style.transform = "scale(1.2)";
+                setTimeout(() => document.getElementById("clickMe").style.transform = "scale(1)", 100);
+            }
         });
 
         function speichereHighscore() {
@@ -60,7 +65,7 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ "Name": username, "Score": punkte })
-            }).then(() => { alert("Gesendet!"); ladeRangliste(); });
+            }).then(() => { alert("Erfolgreich gesendet!"); ladeRangliste(); });
         }
 
         function ladeRangliste() {
@@ -70,7 +75,7 @@
                 const liste = document.getElementById("rangliste");
                 liste.innerHTML = "";
                 data.sort((a, b) => b.Score - a.Score).slice(0, 5).forEach(r => {
-                    liste.innerHTML += `<li>${r.Name}: ${r.Score} Punkte</li>`;
+                    liste.innerHTML += `<li>🏆 ${r.Name}: ${r.Score}</li>`;
                 });
             });
         }
