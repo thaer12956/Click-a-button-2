@@ -6,82 +6,52 @@
     <style>
         body { text-align: center; font-family: sans-serif; transition: background 0.3s; padding: 20px; }
         #spielBereich { display: none; }
-        button { padding: 15px 30px; font-size: 20px; cursor: pointer; border-radius: 10px; border: none; margin: 10px; }
-        #rangliste { margin-top: 30px; border-top: 2px solid #000; padding-top: 20px; }
+        button { padding: 15px 30px; font-size: 20px; cursor: pointer; border-radius: 10px; border: none; margin: 10px; background-color: #ffcc00; }
+        .box { background: white; padding: 20px; border-radius: 15px; display: inline-block; box-shadow: 0px 0px 10px rgba(0,0,0,0.2); }
+        iframe { width: 100%; max-width: 500px; height: 300px; border: none; margin-top: 20px; }
     </style>
 </head>
 <body>
 
-    <!-- Login -->
-    <div id="loginBereich">
+    <div class="box" id="loginBereich">
         <h1>ClickAbutton</h1>
         <p>Ein Spiel von Thaer Hasan Faisal Almusawi</p>
         <input type="text" id="username" placeholder="Dein Name">
+        <br>
         <button onclick="starteSpiel()">Spiel starten</button>
     </div>
 
-    <!-- Spiel -->
     <div id="spielBereich">
-        <h1 id="begruessung"></h1>
-        <button id="clickMe" style="background-color: #ffcc00;">Klick mich!</button>
-        <h2>Punkte: <span id="score">0</span></h2>
-        <button onclick="speichereHighscore()">Highscore senden</button>
-        
-        <!-- Rangliste -->
-        <div id="rangliste">
-            <h2>Aktuelle Bestenliste</h2>
-            <ul id="highscoreListe">Lade Rangliste...</ul>
+        <div class="box">
+            <h1 id="begruessung"></h1>
+            <button id="clickMe">Klick mich!</button>
+            <h2>Punkte: <span id="score">0</span></h2>
+        </div>
+
+        <br>
+        <div class="box">
+            <h2>Bestenliste</h2>
+            <iframe src="
+GET
+Method
+https://api.sheetbest.com/sheets/b9812567-f893-45cd-a9bb-d76ce626a6b0"></iframe>
         </div>
     </div>
 
     <script>
-        // HIER DEINEN LINK VON SHEETBEST EINFÜGEN:
-        const SHEET_URL = "https://api.sheetbest.com/sheets/b9812567-f893-45cd-a9bb-d76ce626a6b0";
-        
         let punkte = 0;
-        let username = "";
-
         function starteSpiel() {
-            username = document.getElementById("username").value;
-            if (username === "") { alert("Name eingeben, Bre!"); return; }
+            let name = document.getElementById("username").value;
+            if (name === "") { alert("Name eingeben, Bre!"); return; }
             document.getElementById("loginBereich").style.display = "none";
             document.getElementById("spielBereich").style.display = "block";
-            document.getElementById("begruessung").innerText = "Leg los, " + username + "!";
-            ladeRangliste();
+            document.getElementById("begruessung").innerText = "Leg los, " + name + "!";
         }
-
-        document.getElementById("clickMe").addEventListener("click", function() {
+        document.getElementById("clickMe").addEventListener("click", () => {
             punkte++;
             document.getElementById("score").innerText = punkte;
-            const randomColor = '#' + Math.floor(Math.random()*16777215).toString(16);
-            document.body.style.backgroundColor = randomColor;
+            document.body.style.backgroundColor = '#' + Math.floor(Math.random()*16777215).toString(16);
         });
-
-        function speichereHighscore() {
-            fetch(SHEET_URL, {
-                method: 'POST',
-                mode: 'cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ "Name": username, "Score": punkte })
-            })
-            .then(() => { alert("Score gespeichert!"); ladeRangliste(); })
-            .catch(() => alert("Fehler beim Senden, Bro."));
-        }
-
-        function ladeRangliste() {
-            fetch(SHEET_URL)
-            .then(res => res.json())
-            .then(data => {
-                const liste = document.getElementById("highscoreListe");
-                liste.innerHTML = "";
-                // Sortiere nach Punkten absteigend
-                data.sort((a, b) => b.Score - a.Score).slice(0, 5).forEach(row => {
-                    let li = document.createElement("li");
-                    li.innerText = row.Name + ": " + row.Score + " Punkte";
-                    liste.appendChild(li);
-                });
-            });
-        }
     </script>
 </body>
 </html>
