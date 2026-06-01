@@ -8,7 +8,7 @@
         #spielBereich { display: none; }
         button { padding: 15px 30px; font-size: 20px; cursor: pointer; border-radius: 10px; border: none; margin: 10px; background-color: #ffcc00; }
         .box { background: white; padding: 20px; border-radius: 15px; display: inline-block; box-shadow: 0px 0px 10px rgba(0,0,0,0.2); }
-        iframe { width: 100%; max-width: 500px; height: 300px; border: none; margin-top: 20px; }
+        ul { list-style: none; padding: 0; }
     </style>
 </head>
 <body>
@@ -26,32 +26,54 @@
             <h1 id="begruessung"></h1>
             <button id="clickMe">Klick mich!</button>
             <h2>Punkte: <span id="score">0</span></h2>
+            <button onclick="speichereHighscore()">Highscore senden</button>
         </div>
-
-        <br>
+        <br><br>
         <div class="box">
-            <h2>Bestenliste</h2>
-            <iframe src="
-GET
-Method
-https://api.sheetbest.com/sheets/b9812567-f893-45cd-a9bb-d76ce626a6b0"></iframe>
+            <h2>Rangliste</h2>
+            <ul id="rangliste">Lade Daten...</ul>
         </div>
     </div>
 
     <script>
+        const API_URL = "https://api.sheetbest.com/sheets/b9812567-f893-45cd-a9bb-d76ce626a6b0";
         let punkte = 0;
+        let username = "";
+
         function starteSpiel() {
-            let name = document.getElementById("username").value;
-            if (name === "") { alert("Name eingeben, Bre!"); return; }
+            username = document.getElementById("username").value;
+            if (username === "") { alert("Name eingeben, Bre!"); return; }
             document.getElementById("loginBereich").style.display = "none";
             document.getElementById("spielBereich").style.display = "block";
-            document.getElementById("begruessung").innerText = "Leg los, " + name + "!";
+            document.getElementById("begruessung").innerText = "Leg los, " + username + "!";
+            ladeRangliste();
         }
+
         document.getElementById("clickMe").addEventListener("click", () => {
             punkte++;
             document.getElementById("score").innerText = punkte;
             document.body.style.backgroundColor = '#' + Math.floor(Math.random()*16777215).toString(16);
         });
+
+        function speichereHighscore() {
+            fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ "Name": username, "Score": punkte })
+            }).then(() => { alert("Gesendet!"); ladeRangliste(); });
+        }
+
+        function ladeRangliste() {
+            fetch(API_URL)
+            .then(res => res.json())
+            .then(data => {
+                const liste = document.getElementById("rangliste");
+                liste.innerHTML = "";
+                data.sort((a, b) => b.Score - a.Score).slice(0, 5).forEach(r => {
+                    liste.innerHTML += `<li>${r.Name}: ${r.Score} Punkte</li>`;
+                });
+            });
+        }
     </script>
 </body>
 </html>
