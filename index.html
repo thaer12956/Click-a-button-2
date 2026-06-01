@@ -4,20 +4,21 @@
     <meta charset="UTF-8">
     <title>ClickAbutton - Pro</title>
     <style>
-        body { text-align: center; font-family: sans-serif; transition: background 0.3s; padding-top: 50px; }
+        body { text-align: center; font-family: sans-serif; transition: background 0.3s; padding: 20px; }
         #spielBereich { display: none; }
         button { padding: 15px 30px; font-size: 20px; cursor: pointer; border-radius: 10px; border: none; margin: 10px; }
+        #rangliste { margin-top: 30px; border-top: 2px solid #000; padding-top: 20px; }
     </style>
 </head>
 <body>
 
     <!-- Login -->
-   <div id="loginBereich">
-    <h1>ClickAbutton</h1>
-    <p>Ein Spiel von Thaer Hasan Faisal Almusawi</p> 
-    <input type="text" id="username" placeholder="Dein Name">
-    <button onclick="starteSpiel()">Spiel starten</button>
-</div>
+    <div id="loginBereich">
+        <h1>ClickAbutton</h1>
+        <p>Ein Spiel von Thaer Hasan Faisal Almusawi</p>
+        <input type="text" id="username" placeholder="Dein Name">
+        <button onclick="starteSpiel()">Spiel starten</button>
+    </div>
 
     <!-- Spiel -->
     <div id="spielBereich">
@@ -25,6 +26,12 @@
         <button id="clickMe" style="background-color: #ffcc00;">Klick mich!</button>
         <h2>Punkte: <span id="score">0</span></h2>
         <button onclick="speichereHighscore()">Highscore senden</button>
+        
+        <!-- Rangliste -->
+        <div id="rangliste">
+            <h2>Aktuelle Bestenliste</h2>
+            <ul id="highscoreListe">Lade Rangliste...</ul>
+        </div>
     </div>
 
     <script>
@@ -40,6 +47,7 @@
             document.getElementById("loginBereich").style.display = "none";
             document.getElementById("spielBereich").style.display = "block";
             document.getElementById("begruessung").innerText = "Leg los, " + username + "!";
+            ladeRangliste();
         }
 
         document.getElementById("clickMe").addEventListener("click", function() {
@@ -56,8 +64,23 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ "Name": username, "Score": punkte })
             })
-            .then(() => alert("Score für " + username + " gespeichert!"))
+            .then(() => { alert("Score gespeichert!"); ladeRangliste(); })
             .catch(() => alert("Fehler beim Senden, Bro."));
+        }
+
+        function ladeRangliste() {
+            fetch(SHEET_URL)
+            .then(res => res.json())
+            .then(data => {
+                const liste = document.getElementById("highscoreListe");
+                liste.innerHTML = "";
+                // Sortiere nach Punkten absteigend
+                data.sort((a, b) => b.Score - a.Score).slice(0, 5).forEach(row => {
+                    let li = document.createElement("li");
+                    li.innerText = row.Name + ": " + row.Score + " Punkte";
+                    liste.appendChild(li);
+                });
+            });
         }
     </script>
 </body>
