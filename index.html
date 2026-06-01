@@ -4,18 +4,17 @@
     <meta charset="UTF-8">
     <title>ClickAbutton - Pro</title>
     <style>
-        body { text-align: center; font-family: sans-serif; background-color: #f0f0f0; transition: background 0.3s; padding: 20px; }
+        body { text-align: center; font-family: sans-serif; transition: background 0.3s; padding: 20px; }
         .box { background: white; padding: 20px; border-radius: 15px; display: inline-block; box-shadow: 0px 0px 10px rgba(0,0,0,0.2); margin-top: 20px; }
         button { padding: 15px 30px; font-size: 20px; cursor: pointer; border-radius: 10px; border: none; margin: 10px; background-color: #ffcc00; }
+        iframe { width: 100%; max-width: 400px; height: 300px; border: none; }
         #spielBereich { display: none; }
-        ul { list-style: none; padding: 0; }
     </style>
 </head>
 <body>
 
     <div class="box" id="loginBereich">
         <h1>ClickAbutton</h1>
-        <p>Ein Spiel von Thaer Hasan Faisal Almusawi</p>
         <input type="text" id="username" placeholder="Dein Name">
         <br>
         <button onclick="starteSpiel()">Spiel starten</button>
@@ -26,63 +25,41 @@
             <h1 id="begruessung"></h1>
             <button id="clickMe">Klick mich!</button>
             <h2>Punkte: <span id="score">0</span></h2>
-            <button onclick="speichereHighscore()">Highscore senden</button>
+            <button onclick="window.open('https://docs.google.com/forms/d/e/1FAIpQLSf.../viewform', '_blank')">Highscore eintragen</button>
         </div>
         <br>
         <div class="box">
             <h2>Bestenliste</h2>
-            <ul id="rangliste">Lade Daten...</ul>
+            <iframe src="https://docs.google.com/spreadsheets/d/1.../pubhtml?widget=true&amp;headers=false"></iframe>
         </div>
     </div>
 
     <script>
-        const API_URL = "https://api.sheetbest.com/sheets/b9812567-f893-45cd-a9bb-d76ce626a6b0";
         let punkte = 0;
-        let username = "";
-
         function starteSpiel() {
-            username = document.getElementById("username").value;
-            if (username === "") { alert("Name eingeben!"); return; }
+            let name = document.getElementById("username").value;
+            if (name === "") { alert("Name eingeben!"); return; }
             document.getElementById("loginBereich").style.display = "none";
             document.getElementById("spielBereich").style.display = "block";
-            document.getElementById("begruessung").innerText = "Leg los, " + username + "!";
-            ladeRangliste();
         }
 
         document.getElementById("clickMe").addEventListener("click", () => {
             punkte++;
             document.getElementById("score").innerText = punkte;
             document.body.style.backgroundColor = '#' + Math.floor(Math.random()*16777215).toString(16);
+            
+            // OXPLOSION bei jedem 5. Klick!
+            if (punkte % 5 === 0) {
+                document.getElementById("clickMe").style.fontSize = "50px";
+                document.getElementById("clickMe").style.backgroundColor = "red";
+                document.getElementById("clickMe").innerText = "BOOM!";
+                setTimeout(() => { 
+                    document.getElementById("clickMe").style.fontSize = "20px";
+                    document.getElementById("clickMe").style.backgroundColor = "#ffcc00";
+                    document.getElementById("clickMe").innerText = "Klick mich!";
+                }, 300);
+            }
         });
-
-        function speichereHighscore() {
-            fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ "NAME": username, "SCORE": punkte })
-            })
-            .then(res => {
-                if(res.ok) { 
-                    alert("Gesendet, Legende!"); 
-                    // Überraschung!
-                    document.body.style.transform = "rotate(360deg)";
-                    document.body.style.transition = "2s";
-                    ladeRangliste(); 
-                } else { alert("Fehler beim Senden!"); }
-            });
-        }
-
-        function ladeRangliste() {
-            fetch(API_URL)
-            .then(res => res.json())
-            .then(data => {
-                const liste = document.getElementById("rangliste");
-                liste.innerHTML = "";
-                data.sort((a, b) => b.SCORE - a.SCORE).slice(0, 5).forEach(r => {
-                    liste.innerHTML += `<li>🏆 ${r.NAME}: ${r.SCORE}</li>`;
-                });
-            });
-        }
     </script>
 </body>
 </html>
