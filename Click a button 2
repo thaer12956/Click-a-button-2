@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>ClickAbutton – Die Challenge</title>
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; padding-top: 50px; }
+        #spielBereich { display: none; }
+    </style>
+</head>
+<body>
+
+    <div id="loginBereich">
+        <h1>Willkommen bei ClickAbutton!</h1>
+        <p>Gib deine E-Mail oder deinen Namen ein, um zu starten:</p>
+        <input type="text" id="username" placeholder="Name/E-Mail">
+        <button onclick="starteSpiel()">Start</button>
+    </div>
+
+    <div id="spielBereich">
+        <h1 id="begruessung"></h1>
+        <button id="clickMe">Klick mich!</button>
+        <p>Deine Punkte: <span id="score">0</span></p>
+    </div>
+
+    <script>
+        let punkte = 0;
+        let username = "";
+
+        function starteSpiel() {
+            username = document.getElementById("username").value;
+            if (username === "") {
+                alert("Bitte gib erst einen Namen ein!");
+                return;
+            }
+            document.getElementById("loginBereich").style.display = "none";
+            document.getElementById("spielBereich").style.display = "block";
+            document.getElementById("begruessung").innerText = "Viel Erfolg, " + username + "!";
+        }
+
+        document.getElementById("clickMe").addEventListener("click", function() {
+            punkte++;
+            document.getElementById("score").innerText = punkte;
+        });
+    </script>
+</body>
+</html>
