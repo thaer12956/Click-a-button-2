@@ -2,46 +2,62 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>ClickAbutton – Die Challenge</title>
+    <title>ClickAbutton - Pro</title>
     <style>
-        body { text-align: center; font-family: Arial, sans-serif; padding-top: 50px; }
+        body { text-align: center; font-family: sans-serif; transition: background 0.3s; padding-top: 50px; }
         #spielBereich { display: none; }
+        button { padding: 15px 30px; font-size: 20px; cursor: pointer; border-radius: 10px; border: none; margin: 10px; }
     </style>
 </head>
 <body>
 
+    <!-- Login -->
     <div id="loginBereich">
-        <h1>Willkommen bei ClickAbutton!</h1>
-        <p>Gib deine E-Mail oder deinen Namen ein, um zu starten:</p>
-        <input type="text" id="username" placeholder="Name/E-Mail">
-        <button onclick="starteSpiel()">Start</button>
+        <h1>ClickAbutton Login</h1>
+        <input type="text" id="username" placeholder="Dein Name">
+        <button onclick="starteSpiel()">Spiel starten</button>
     </div>
 
+    <!-- Spiel -->
     <div id="spielBereich">
         <h1 id="begruessung"></h1>
-        <button id="clickMe">Klick mich!</button>
-        <p>Deine Punkte: <span id="score">0</span></p>
+        <button id="clickMe" style="background-color: #ffcc00;">Klick mich!</button>
+        <h2>Punkte: <span id="score">0</span></h2>
+        <button onclick="speichereHighscore()">Highscore senden</button>
     </div>
 
     <script>
+        // HIER DEINEN LINK VON SHEETBEST EINFÜGEN:
+        const SHEET_URL = "DEINE_SHEETBEST_URL_HIER_EINFÜGEN";
+        
         let punkte = 0;
         let username = "";
 
         function starteSpiel() {
             username = document.getElementById("username").value;
-            if (username === "") {
-                alert("Bitte gib erst einen Namen ein!");
-                return;
-            }
+            if (username === "") { alert("Name eingeben, Bre!"); return; }
             document.getElementById("loginBereich").style.display = "none";
             document.getElementById("spielBereich").style.display = "block";
-            document.getElementById("begruessung").innerText = "Viel Erfolg, " + username + "!";
+            document.getElementById("begruessung").innerText = "Leg los, " + username + "!";
         }
 
         document.getElementById("clickMe").addEventListener("click", function() {
             punkte++;
             document.getElementById("score").innerText = punkte;
+            const randomColor = '#' + Math.floor(Math.random()*16777215).toString(16);
+            document.body.style.backgroundColor = randomColor;
         });
+
+        function speichereHighscore() {
+            fetch(SHEET_URL, {
+                method: 'POST',
+                mode: 'cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ "Name": username, "Score": punkte })
+            })
+            .then(() => alert("Score für " + username + " gespeichert!"))
+            .catch(() => alert("Fehler beim Senden, Bro."));
+        }
     </script>
 </body>
 </html>
